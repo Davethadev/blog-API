@@ -7,7 +7,9 @@ const getAllComments = async (req, res) => {
   if (!blogId) throw new BadRequestError("The blog id is required");
   const [blog, comments, total_comments] = await Promise.all([
     await Blog.findById(blogId),
-    await Comment.find({ blog_id: blogId }, "email comment"),
+    await Comment.find({ blog_id: blogId }, "email comment").sort({
+      createdAt: -1,
+    }),
     await Comment.countDocuments({ blog_id: blogId }).exec(),
   ]);
   res.status(200).json({ blog, comments, total_comments });

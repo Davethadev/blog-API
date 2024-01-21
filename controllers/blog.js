@@ -23,7 +23,7 @@ const unpublishBlog = async (req, res) => {
 
 const getAllBlogs = async (req, res) => {
   const [posts, total_posts] = await Promise.all([
-    await Blog.find({ is_published: true }),
+    await Blog.find({ is_published: true }).sort({ createdAt: -1 }),
     await Blog.countDocuments({ is_published: true }).exec(),
   ]);
   res.status(200).json({ posts, total_posts });
@@ -31,7 +31,7 @@ const getAllBlogs = async (req, res) => {
 
 const getAllMyBlogs = async (req, res) => {
   const [posts, total_posts] = await Promise.all([
-    await Blog.find(),
+    await Blog.find().sort({ createdAt: -1 }),
     await Blog.countDocuments({}).exec(),
   ]);
   res.status(200).json({ posts, total_posts });
@@ -41,7 +41,9 @@ const getBlog = async (req, res) => {
   const { id: blogId } = req.params;
   const [blog, comments, total_comments] = await Promise.all([
     await Blog.findById(blogId),
-    await Comment.find({ blog_id: blogId }, "email comment"),
+    await Comment.find({ blog_id: blogId }, "email comment").sort({
+      createdAt: -1,
+    }),
     await Comment.countDocuments({ blog_id: blogId }).exec(),
   ]);
   if (!blog) throw new NotFoundError(`No blog with id : ${blogId} found`);
